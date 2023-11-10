@@ -1,0 +1,142 @@
+{
+  "name": "traefik_ingress_route_rate_limit_policy_violations",
+  "description": "Traefik Ingress Route Rate Limit Policy Violations occur when there are breaches of the rate limit policies set in Traefik-managed routes. Traefik is a popular open-source reverse proxy and load balancer software that is used in Kubernetes environments to provide routing and load balancing capabilities. When a rate limit policy is violated, it means that the allowed rate of requests has been exceeded, which can cause service degradation or outage. This incident type usually requires investigation and remediation to ensure that the rate limit policies are properly configured and enforced.",
+  "params": [
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "INGRESS_ROUTE_NAME",
+      "value": ""
+    },
+    {
+      "name": "DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "TRAEFIK_DEPLOYMENT_NAME",
+      "value": ""
+    },
+    {
+      "name": "NEW_RATE_LIMIT",
+      "value": ""
+    },
+    {
+      "name": "ROUTE_NAME",
+      "value": ""
+    },
+    {
+      "name": "TRAEFIK_POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Traefik Ingress Route Rate Limit Policy Violations\nTraefik Ingress Route Rate Limit Policy Violations occur when there are breaches of the rate limit policies set in Traefik-managed routes. Traefik is a popular open-source reverse proxy and load balancer software that is used in Kubernetes environments to provide routing and load balancing capabilities. When a rate limit policy is violated, it means that the allowed rate of requests has been exceeded, which can cause service degradation or outage. This incident type usually requires investigation and remediation to ensure that the rate limit policies are properly configured and enforced."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all namespaces"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get namespaces`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## List all Traefik pods in the current namespace"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE} -l app=traefik`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of a Traefik pod to see if there are any rate limit policy violations"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs ${TRAEFIK_POD_NAME} -n ${NAMESPACE} | grep \"Rate limit policy violation\"`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Ingress routes in the current namespace"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get ingress -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Describe a specific Ingress route to see if there are any rate limit policies set"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe ingress ${INGRESS_ROUTE_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the annotations of a specific Ingress route to see if there are any rate limit policies set"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get ingress ${INGRESS_ROUTE_NAME} -n ${NAMESPACE} -o jsonpath='{.metadata.annotations}'`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the configuration of the Traefik deployment to ensure that rate limit policies are correctly configured"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe deployment ${TRAEFIK_DEPLOYMENT_NAME} -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Increase the rate limit for the affected routes to accommodate the incoming traffic."
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_update_rate_limit($NAMESPACE, $DEPLOYMENT_NAME, $NEW_RATE_LIMIT, $ROUTE_NAME)"
+    }
+  ]
+}
